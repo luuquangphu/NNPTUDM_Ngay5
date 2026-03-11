@@ -46,4 +46,4 @@ const userSchema = new mongoose.Schema({
 });
 
 // Bỏ chữ 'new' và viết hoa chữ 'User'
-module.exports = new mongoose.model('User', userSchema);
+module.exports = new mongoose.model('user', userSchema);

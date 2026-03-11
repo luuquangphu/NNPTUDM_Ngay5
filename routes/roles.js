@@ -1,24 +1,68 @@
-const mongoose = require('mongoose');
+var express = require('express');
+var router = express.Router();
+let roleModel = require('../schemas/roles'); // Đổi đường dẫn tới model của bạn cho đúng nhé
 
-const roleSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    description: {
-        type: String,
-        default: ""
-    },
-    timestamp: {
-        type: Date,
-        default: Date.now
-    },
-    isDeleted: { 
-        type: Boolean,
-        default: false // Đã thêm mặc định false để phục vụ xoá mềm
-    }
+// GET all roles
+router.get('/', async function (req, res, next) {
+  let data = await roleModel.find({
+    isDeleted: false
+  });
+  res.send(data);
 });
 
-// Sửa 'role' thành 'Role' (Viết hoa chữ cái đầu) và bỏ chữ 'new'
-module.exports = new mongoose.model('Role', roleSchema);
+// GET role by ID
+router.get('/:id', async function (req, res, next) {
+  try {
+    let id = req.params.id;
+    let result = await roleModel.find({
+      isDeleted: false,
+      _id: id
+    });
+    if (result.length > 0) {
+      res.send(result[0]);
+    } else {
+      res.status(404).send("ID NOT FOUND");
+    }
+  } catch (error) {
+    res.status(404).send(error.message);
+  }
+});
+
+// CREATE (POST) role
+router.post('/', async function (req, res, next) {
+  let newRole = new roleModel({
+    name: req.body.name,
+    description: req.body.description
+  });
+  await newRole.save();
+  res.send(newRole);
+});
+
+// UPDATE (PUT) role
+router.put('/:id', async function (req, res, next) {
+  try {
+    let id = req.params.id;
+    let result = await roleModel.findByIdAndUpdate(
+      id, req.body, {
+      new: true
+    });
+    res.send(result);
+  } catch (error) {
+    res.status(404).send(error.message);
+  }
+});
+
+// DELETE (Soft Delete) role
+router.delete('/:id', async function (req, res, next) {
+  try {
+    let id = req.params.id;
+    let result = await roleModel.findById(id);
+    result.isDeleted = true;
+    await result.save();
+    res.send(result);
+  } catch (error) {
+    res.status(404).send(error.message);
+  }
+});
+
+module.exports = router;
