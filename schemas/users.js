@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -46,4 +47,4 @@ const userSchema = new mongoose.Schema({
 });
 
 // Bỏ chữ 'new' và viết hoa chữ 'User'
-module.exports = new mongoose.model('user', userSchema);
+module.exports = mongoose.model('User', userSchema);

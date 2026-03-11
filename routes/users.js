@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-let userModel = require('../schemas/users'); // Đổi đường dẫn tới model của bạn cho đúng nhé
+let userModel = require('../schemas/users');
+require('../schemas/roles'); // Đổi đường dẫn tới model của bạn cho đúng nhé
 
 // GET all users (Có query theo username includes)
 router.get('/', async function (req, res, next) {
@@ -82,6 +83,56 @@ router.delete('/:id', async function (req, res, next) {
     res.send(result);
   } catch (error) {
     res.status(404).send(error.message);
+  }
+});
+// 2) Kích hoạt tài khoản (ENABLE)
+router.post('/enable', async function (req, res, next) {
+  try {
+    let { email, username } = req.body;
+    
+    // Tìm user khớp với email, username và chưa bị xóa mềm
+    let user = await userModel.findOne({ 
+      email: email, 
+      username: username, 
+      isDeleted: false 
+    });
+
+    if (!user) {
+      return res.status(404).send("Không tìm thấy User hoặc sai thông tin (email/username)!");
+    }
+
+    // Cập nhật status thành true
+    user.status = true;
+    await user.save();
+    
+    res.send({ message: "Đã kích hoạt tài khoản thành công!", user });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// 3) Vô hiệu hóa tài khoản (DISABLE)
+router.post('/disable', async function (req, res, next) {
+  try {
+    let { email, username } = req.body;
+    
+    let user = await userModel.findOne({ 
+      email: email, 
+      username: username, 
+      isDeleted: false 
+    });
+
+    if (!user) {
+      return res.status(404).send("Không tìm thấy User hoặc sai thông tin (email/username)!");
+    }
+
+    // Cập nhật status thành false
+    user.status = false;
+    await user.save();
+    
+    res.send({ message: "Đã khóa tài khoản thành công!", user });
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 });
 

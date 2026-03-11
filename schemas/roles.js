@@ -1,9 +1,24 @@
 const mongoose = require('mongoose');
 
 const roleSchema = new mongoose.Schema({
-    name: { type: String, unique: true, required: true },
-    description: { type: String, default: "" },
-    isDeleted: { type: Boolean, default: false } // Phục vụ xóa mềm
-}, { timestamps: true });
+    name: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    description: {
+        type: String,
+        default: ""
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now
+    },
+    isDeleted: { 
+        type: Boolean,
+        default: false // Đã thêm mặc định false để phục vụ xoá mềm
+    }
+});
 
-module.exports = new mongoose.model('role', roleSchema);
+// Sửa 'role' thành 'Role' (Viết hoa chữ cái đầu) và bỏ chữ 'new'
+module.exports = mongoose.model('Role', roleSchema);
